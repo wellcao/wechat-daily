@@ -15,4 +15,4 @@ git push origin HEAD:main
 
 不要强制推送。本地 `master` 和 GitHub `main` 不是同一套历史，不要用 `master` 覆盖 `main`。
 
-`.env` 和 `给Codex的迁移说明.md` 不要推上去。迁移说明里有 AppSecret，仓库是公开的。
+不要推送 `.env`。仓库是公开的，密钥只留在服务器上。
