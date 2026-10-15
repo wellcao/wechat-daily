@@ -1,0 +1,18 @@
+---
+description: 本地提交后必须推到 GitHub 远程仓库
+alwaysApply: true
+---
+
+# 推送到远程
+
+这个仓库的远程是 `https://github.com/wellcao/wechat-daily`，分支是 `main`。
+
+每次完成本地提交后，立刻推到 `origin` 的 `main`。没有推送成功，这次改动就不算做完。
+
+```bash
+git push origin HEAD:main
+```
+
+不要强制推送。本地 `master` 和 GitHub `main` 不是同一套历史，不要用 `master` 覆盖 `main`。
+
+`.env` 和 `给Codex的迁移说明.md` 不要推上去。迁移说明里有 AppSecret，仓库是公开的。
