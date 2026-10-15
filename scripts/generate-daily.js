@@ -114,9 +114,11 @@ await fs.mkdir(outputDir, { recursive: true });
 
 const companyEvents = events.filter((event) => event.company);
 const firstEvent = companyEvents[0] || events[0];
+const dateLabel = `${Number(date.slice(5, 7))}月${Number(date.slice(8, 10))}日`;
+const firstTimeLabel = firstEvent.time.replace(/^北京时间(?:次日 )?(?:\d+月\d+日 )?/, "");
 const title = companyEvents[0]
-  ? `${companyEvents[0].time} ${companyEvents[0].company}财报预告`
-  : `${formatBeijing(easternOffset(date) === -4 ? 21 : 22, 30)}美股开盘及今晚日程`;
+  ? `${dateLabel}${companyEvents[0].company}财报预告：${firstTimeLabel}`
+  : `${dateLabel}美股日程前瞻：${firstTimeLabel}开盘、次日收盘`;
 const summary = companyEvents.length
   ? `接下来先看${companyEvents[0].company}（${companyEvents[0].symbol}）财报。同一窗口还有美股开盘和收盘。相关时间会碰到科技股、利率预期、黄金和比特币，但出稿时没有结果。`
   : "接下来先看美股开盘。同一窗口还要看美股收盘前后的已排定日程。出稿时没有核对到大型科技公司财报，黄金和比特币只作利率敏感资产提示。";
