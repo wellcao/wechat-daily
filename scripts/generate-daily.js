@@ -82,6 +82,8 @@ const sections = grouped.map(([label, group]) => {
 const markdown = `---
 title: 明日美股与宏观资讯｜${nextDate}
 cover: ./封面.png
+need_open_comment: 1
+only_fans_can_comment: 0
 ---
 
 > 本文提示下一个工作日（${nextDate}）值得关注的美股、黄金与加密资产相关资讯；仅使用已公开的日程、预告和来源链接。
