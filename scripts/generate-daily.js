@@ -11,10 +11,15 @@ const date = process.argv[2] || new Intl.DateTimeFormat("en-CA", {
 const outputDir = path.join(root, date);
 const themes = ["default", "orangeheart", "rainbow", "lapis", "pie", "maize", "purple", "phycat"];
 const theme = themes[Math.floor(Date.parse(`${date}T00:00:00Z`) / 86400000) % themes.length];
+const nextWorkday = new Date(`${date}T00:00:00Z`);
+do {
+  nextWorkday.setUTCDate(nextWorkday.getUTCDate() + 1);
+} while (nextWorkday.getUTCDay() === 0 || nextWorkday.getUTCDay() === 6);
+const nextDate = nextWorkday.toISOString().slice(0, 10);
 const feeds = [
-  ["美国政策与美联储", "US Federal Reserve OR US policy markets"],
-  ["美国经济数据", "US CPI PCE jobs report economic data"],
-  ["科技公司", "technology stocks earnings AI chip company"],
+  ["明日美国政策与美联储", `US Federal Reserve OR US policy markets ${nextDate}`],
+  ["明日美国经济数据", `US CPI PCE jobs report economic calendar ${nextDate}`],
+  ["明日科技公司", `technology stocks earnings AI chip company events ${nextDate}`],
 ];
 
 function decodeXml(value) {
@@ -62,30 +67,30 @@ const recent = items.filter((item) => Number.isFinite(Date.parse(item.date)) && 
 const unique = [...new Map(recent.map((item) => [item.title, item])).values()].slice(0, 12);
 if (unique.length < 3) throw new Error("公开资讯源返回不足 3 条，已停止生成，避免上传空稿");
 
-await createImage(path.join(outputDir, "封面.png"), "美股与宏观资讯", "#18324b");
-await createImage(path.join(outputDir, "政策与利率.png"), "政策与利率", "#7d3f3f");
-await createImage(path.join(outputDir, "宏观数据.png"), "宏观数据", "#315f4c");
-await createImage(path.join(outputDir, "科技公司.png"), "科技公司", "#59447d");
+await createImage(path.join(outputDir, "封面.png"), "明日美股与宏观资讯", "#18324b");
+await createImage(path.join(outputDir, "政策与利率.png"), "明日政策与利率", "#7d3f3f");
+await createImage(path.join(outputDir, "宏观数据.png"), "明日宏观数据", "#315f4c");
+await createImage(path.join(outputDir, "科技公司.png"), "明日科技公司", "#59447d");
 
 const grouped = feeds.map(([label]) => [label, unique.filter((item) => item.label === label)]).filter(([, group]) => group.length);
 const sections = grouped.map(([label, group]) => {
-  const image = label === "美国政策与美联储" ? "政策与利率.png" : label === "美国经济数据" ? "宏观数据.png" : "科技公司.png";
+  const image = label === "明日美国政策与美联储" ? "政策与利率.png" : label === "明日美国经济数据" ? "宏观数据.png" : "科技公司.png";
   const lines = group.slice(0, 4).map((item) => `- [${safe(item.title)}](${item.link})（${new Date(item.date).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}）`);
   return `## ${label}\n\n![${label}](./${image})\n\n${lines.join("\n")}\n`;
 }).join("\n");
 
 const markdown = `---
-title: 美股与宏观资讯｜${date}
+title: 明日美股与宏观资讯｜${nextDate}
 cover: ./封面.png
 ---
 
-> 本文整理过去 24 小时影响美股、黄金与加密资产的公开资讯，数字与事实请以原始来源为准。
+> 本文提示下一个工作日（${nextDate}）值得关注的美股、黄金与加密资产相关资讯；仅使用已公开的日程、预告和来源链接。
 
 ${sections}
 
 ## 阅读提示
 
-- 仅纳入公开来源可核实的标题、时间和链接。
+- 仅纳入公开来源可核实的明日事件、日程、预告和链接。
 - 本文不补写未经来源支持的价格、涨跌幅或概率。
 - 具体影响仍需结合公司公告、监管文件和市场交易数据判断。
 

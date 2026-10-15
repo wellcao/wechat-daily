@@ -15,6 +15,7 @@ if [ ! -s .env ]; then
 fi
 
 node scripts/generate-daily.js "$DATE_VALUE"
+ARTICLE_TITLE="$(sed -n 's/^title: //p' "$DATE_VALUE/发布.md")"
 THEME_LIST=(default orangeheart rainbow lapis pie maize purple phycat)
 THEME_INDEX=$((10#$(date -d "$DATE_VALUE" +%s) / 86400 % 8))
 THEME="${THEME_LIST[$THEME_INDEX]}"
@@ -24,7 +25,7 @@ THEME="${THEME_LIST[$THEME_INDEX]}"
 if /usr/local/bin/openclaw message send \
   --channel openclaw-weixin \
   --target 'o9cq807dwBujajyUpl67pLJ1yqJM@im.wechat' \
-  --message "公众号草稿已创建：美股与宏观资讯｜$DATE_VALUE。请打开公众号后台检查并手动发表。" \
+  --message "公众号草稿已创建：$ARTICLE_TITLE。请打开公众号后台检查并手动发表。" \
   --json; then
   echo "Clawbot notification sent"
 else
