@@ -2,6 +2,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import playwright from "../tools/node_modules/playwright/index.js";
 
 const { chromium } = playwright;
@@ -98,6 +99,21 @@ async function renderCard(file, title, lines, background, width, height) {
   await browser.close();
 }
 
+async function renderPreview(file, title, summary) {
+  const browser = await chromium.launch({ headless: true, args: ["--headless=new", "--disable-gpu", "--no-sandbox"] });
+  const page = await browser.newPage({ viewport: { width: 900, height: 900 } });
+  const coverUrl = pathToFileURL(path.join(outputDir, "封面.png")).href;
+  const bodyUrl = pathToFileURL(path.join(outputDir, "图1.png")).href;
+  const html = `<html><head><meta charset="utf-8"><style>
+    @font-face { font-family: cjk; src: url("file:///usr/share/fonts/google-noto-cjk/NotoSansCJKsc-Regular.otf"); }
+    * { box-sizing: border-box; } body { margin: 0; width: 900px; background: #f5f5f5; color: #222; font-family: cjk, sans-serif; padding-bottom: 36px; }
+    img { display: block; width: 100%; } .content { background: #fff; padding: 34px 46px 28px; } h1 { font-size: 34px; line-height: 1.35; margin: 0 0 20px; } p { color: #666; font-size: 21px; line-height: 1.7; margin: 0 0 24px; } h2 { font-size: 27px; margin: 0 0 18px; }
+  </style></head><body><img src="${coverUrl}"><section class="content"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(summary)}</p><h2>时间表</h2><img src="${bodyUrl}"></section></body></html>`;
+  await page.setContent(html, { waitUntil: "load" });
+  await page.screenshot({ path: file, fullPage: true });
+  await browser.close();
+}
+
 const events = marketTimes();
 try {
   events.push(...await fetchEarnings());
@@ -133,6 +149,7 @@ await renderCard(path.join(outputDir, "封面.png"), `${date} 日程预告`, [fi
 await renderCard(path.join(outputDir, "图1.png"), "时间表（北京时间）", events.slice(0, 6).map((event) => `${event.time}｜${event.event}`), "#164e63", 1080, 420);
 await renderCard(path.join(outputDir, "图2.png"), "最重要的一件事", [firstEvent.time, firstEvent.event, firstEvent.detail], "#713f12", 1080, 420);
 await renderCard(path.join(outputDir, "图3.png"), "会碰到的公司", companyEvents.length ? companyEvents.map((event) => `${event.company}（${event.symbol}）｜财报日程`) : ["没有已核对的大型科技财报"], "#3f3f46", 1080, 420);
+await renderPreview(path.join(outputDir, "预览.png"), title, summary);
 
 const markdown = `---
 title: ${title.slice(0, 64)}
