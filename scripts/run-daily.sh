@@ -21,6 +21,16 @@ THEME="${THEME_LIST[$THEME_INDEX]}"
 
 "$TOOLS_DIR/node_modules/.bin/wenyan" publish -f "$DATE_VALUE/发布.md" --env-file .env -t "$THEME"
 
+if /usr/local/bin/openclaw message send \
+  --channel openclaw-weixin \
+  --target 'o9cq807dwBujajyUpl67pLJ1yqJM@im.wechat' \
+  --message "公众号草稿已创建：美股与宏观资讯｜$DATE_VALUE。请打开公众号后台检查并手动发表。" \
+  --json; then
+  echo "Clawbot notification sent"
+else
+  echo "WARNING: draft succeeded but Clawbot notification failed"
+fi
+
 git add "$DATE_VALUE"
 if ! git diff --cached --quiet; then
   git -c user.name='wechat-daily-bot' -c user.email='wechat-daily@localhost' commit -m "Add daily digest $DATE_VALUE"
