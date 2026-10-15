@@ -1,0 +1,8 @@
+{
+  "name": "wechat-daily-tools",
+  "private": true,
+  "dependencies": {
+    "@wenyan-md/cli": "2.0.12",
+    "playwright": "1.55.0"
+  }
+}

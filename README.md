@@ -1,10 +1,11 @@
 # wechat-daily
 
-服务器上的每日资讯草稿任务：北京时间工作日 08:00 抓取公开 RSS，生成“下一个工作日预告”文章、带来源链接的 Markdown 和配图，再使用 WenYan 上传到微信公众号草稿箱。周五生成下周一预告。
+服务器上的每日资讯草稿任务：北京时间工作日 08:00 核对交易时段和 Nasdaq 财报日历，生成出稿后至次日 08:00 的未来日程预告、带来源链接的 Markdown 和配图，再使用 WenYan 上传到微信公众号草稿箱。缺少可核对时间的事件就不写，周末不把已发生新闻补进稿件。
 
 ## 手动运行
 
 ```bash
+cd /root/wechat-daily/tools && npm install
 /root/wechat-daily/scripts/run-daily.sh
 ```
 

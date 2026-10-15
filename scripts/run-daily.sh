@@ -17,7 +17,7 @@ fi
 node scripts/generate-daily.js "$DATE_VALUE"
 ARTICLE_TITLE="$(sed -n 's/^title: //p' "$DATE_VALUE/发布.md")"
 THEME_LIST=(default orangeheart rainbow lapis pie maize purple phycat)
-THEME_INDEX=$((10#$(date -d "$DATE_VALUE" +%s) / 86400 % 8))
+THEME_INDEX=$(( $(date -u -d "$DATE_VALUE" +%s) / 86400 % 8 ))
 THEME="${THEME_LIST[$THEME_INDEX]}"
 
 "$TOOLS_DIR/node_modules/.bin/wenyan" publish -f "$DATE_VALUE/发布.md" --env-file .env -t "$THEME"
