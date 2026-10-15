@@ -63,6 +63,24 @@ async function fetchEarnings() {
   });
 }
 
+async function fetchNextFomc() {
+  const url = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm";
+  const response = await fetch(url, { headers: { "user-agent": "wechat-daily/2.0" } });
+  if (!response.ok) throw new Error(`FOMC calendar HTTP ${response.status}`);
+  const html = await response.text();
+  const year = date.slice(0, 4);
+  const nextYear = String(Number(year) + 1);
+  const block = html.match(new RegExp(`${year} FOMC Meetings([\\s\\S]*?)(?:${nextYear} FOMC Meetings)`))?.[1] || "";
+  const monthNumbers = { January: 1, April: 4, July: 7, October: 10 };
+  const meetings = [...block.matchAll(/<div class="fomc-meeting__month[^>]*><strong>([^<]+)<\/strong>[\s\S]*?<div class="fomc-meeting__date[^>]*>([^<]+)<\/div>/g)]
+    .slice(0, 4).map((match) => ({ month: monthNumbers[match[1]], day: Number(match[2].split("-")[0]) }))
+    .filter((meeting) => meeting.month && Number.isFinite(meeting.day));
+  const current = Date.parse(`${date}T00:00:00Z`);
+  const next = meetings.find((meeting) => Date.UTC(Number(year), meeting.month - 1, meeting.day) >= current);
+  if (!next) return "美联储官方日历尚未列出下一场会议";
+  return `${year}年${next.month}月${next.day}日至${next.day + 1}日`;
+}
+
 async function renderCard(file, title, lines, background, width, height) {
   const browser = await chromium.launch({ headless: true, args: ["--headless=new", "--disable-gpu", "--no-sandbox"] });
   const page = await browser.newPage({ viewport: { width, height } });
@@ -86,6 +104,12 @@ try {
 } catch (error) {
   console.error(`Earnings calendar unavailable: ${error.message}`);
 }
+let nextFomc = "美联储官方日历暂时不可用";
+try {
+  nextFomc = await fetchNextFomc();
+} catch (error) {
+  console.error(`FOMC calendar unavailable: ${error.message}`);
+}
 await fs.mkdir(outputDir, { recursive: true });
 
 const companyEvents = events.filter((event) => event.company);
@@ -101,6 +125,7 @@ const companies = companyEvents.length
   ? companyEvents.map((event) => `- **${event.company}（${event.symbol}）**：财报时间已由 Nasdaq 日历列出，影响要等事件发生后才能判断。`)
   : ["- 这一天没有其他已核对的大型科技财报。"];
 const sources = [...new Map(events.map((event) => [event.source, event.url])).entries()];
+sources.push(["美联储 FOMC 日历", "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"]);
 
 await renderCard(path.join(outputDir, "封面.png"), `${date} 日程预告`, [firstEvent.time, firstEvent.event, ...events.slice(1, 3).map((event) => event.time)], "#172554", 900, 383);
 await renderCard(path.join(outputDir, "图1.png"), "时间表（北京时间）", events.slice(0, 6).map((event) => `${event.time}｜${event.event}`), "#164e63", 1080, 420);
@@ -132,7 +157,7 @@ ${firstEvent.time}，**${firstEvent.event}**。${firstEvent.detail}公司自己�
 
 ## 数据和利率
 
-出稿时只保留窗口内已经核对的公开日程。窗口内没有从美国联邦储备委员会和美国劳工统计局日历核对到的临时数据或讲话，因此不编造公布数字或市场概率。今晚的利率或数据会碰到黄金和比特币，出稿时还没有这场的结果。
+出稿时只保留窗口内已经核对的公开日程。窗口内没有从美国联邦储备委员会和美国劳工统计局日历核对到的临时数据或讲话，因此不编造公布数字或市场概率。下一场议息会议是 **${nextFomc}**，不是今天。今晚的利率或数据会碰到黄金和比特币，出稿时还没有这场的结果。
 
 ## 会碰到的公司
 
