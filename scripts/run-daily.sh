@@ -26,11 +26,20 @@ if /usr/local/bin/openclaw message send \
   --channel openclaw-weixin \
   --target 'o9cq807dwBujajyUpl67pLJ1yqJM@im.wechat' \
   --message "公众号草稿已创建：$ARTICLE_TITLE。请打开公众号后台检查并手动发表。" \
-  --media "$DATE_VALUE/预览.jpg" \
   --json; then
   echo "Clawbot notification sent"
 else
-  echo "WARNING: draft succeeded but Clawbot notification failed"
+  echo "WARNING: draft succeeded but Clawbot text notification failed"
+fi
+
+if /usr/local/bin/openclaw message send \
+  --channel openclaw-weixin \
+  --target 'o9cq807dwBujajyUpl67pLJ1yqJM@im.wechat' \
+  --media "$DATE_VALUE/预览.jpg" \
+  --json; then
+  echo "Clawbot preview sent"
+else
+  echo "WARNING: draft succeeded but Clawbot preview notification failed"
 fi
 
 git add "$DATE_VALUE"
