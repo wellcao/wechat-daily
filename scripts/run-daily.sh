@@ -26,6 +26,7 @@ if /usr/local/bin/openclaw message send \
   --channel openclaw-weixin \
   --target 'o9cq807dwBujajyUpl67pLJ1yqJM@im.wechat' \
   --message "公众号草稿已创建：$ARTICLE_TITLE。请打开公众号后台检查并手动发表。" \
+  --media "$DATE_VALUE/封面.png" \
   --json; then
   echo "Clawbot notification sent"
 else
