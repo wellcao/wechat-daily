@@ -9,6 +9,16 @@ cd /root/wechat-daily/tools && npm install
 /root/wechat-daily/scripts/run-daily.sh
 ```
 
+## 智能体唤起
+
+换会话后可以直接发送「执行公众号日报任务」，并要求智能体读取 `智能体任务说明.md` 和 `公众号稿件要求.md`。也可以在服务器执行：
+
+```bash
+/root/wechat-daily/scripts/trigger-agent.sh
+```
+
+智能体负责检索、核验、写作和分析，脚本负责格式校验、草稿上传和提醒；默认只创建草稿，不自动发表。
+
 任务只调用草稿接口，不调用正式发表接口。`.env` 只保存在服务器，不提交 Git。
 
 稿件内容和格式以 `公众号稿件要求.md` 为准：写下一个工作日将要发生的事，不写昨夜收盘回顾。每篇草稿打开留言，并允许任何人留言。`only_fans_can_comment` 用数字 0，不要写成字符串。
